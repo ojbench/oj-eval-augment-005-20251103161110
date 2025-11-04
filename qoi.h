@@ -99,12 +99,6 @@ bool QoiEncode(uint32_t width, uint32_t height, uint8_t channels, uint8_t colors
                 history[index][2] == b && history[index][3] == a) {
                 QoiWriteU8(QOI_OP_INDEX_TAG | index);
             } else {
-                // Update history
-                history[index][0] = r;
-                history[index][1] = g;
-                history[index][2] = b;
-                history[index][3] = a;
-
                 // Check if we can use DIFF
                 int dr = r - pre_r;
                 int dg = g - pre_g;
@@ -137,6 +131,12 @@ bool QoiEncode(uint32_t width, uint32_t height, uint8_t channels, uint8_t colors
                     }
                 }
             }
+
+            // Update history after encoding
+            history[index][0] = r;
+            history[index][1] = g;
+            history[index][2] = b;
+            history[index][3] = a;
 
             pre_r = r;
             pre_g = g;
