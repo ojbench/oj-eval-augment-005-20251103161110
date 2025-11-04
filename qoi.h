@@ -76,6 +76,9 @@ bool QoiEncode(uint32_t width, uint32_t height, uint8_t channels, uint8_t colors
         b = QoiReadU8();
         if (channels == 4) a = QoiReadU8();
 
+        // Calculate hash index for history
+        int index = QoiColorHash(r, g, b, a);
+
         // Check if pixel is same as previous (for RUN)
         if (r == pre_r && g == pre_g && b == pre_b && a == pre_a) {
             run++;
@@ -90,9 +93,6 @@ bool QoiEncode(uint32_t width, uint32_t height, uint8_t channels, uint8_t colors
                 QoiWriteU8(QOI_OP_RUN_TAG | (run - 1));
                 run = 0;
             }
-
-            // Calculate hash index
-            int index = QoiColorHash(r, g, b, a);
 
             // Check if pixel is in history (INDEX)
             if (history[index][0] == r && history[index][1] == g &&
@@ -132,17 +132,17 @@ bool QoiEncode(uint32_t width, uint32_t height, uint8_t channels, uint8_t colors
                 }
             }
 
-            // Update history after encoding
-            history[index][0] = r;
-            history[index][1] = g;
-            history[index][2] = b;
-            history[index][3] = a;
-
             pre_r = r;
             pre_g = g;
             pre_b = b;
             pre_a = a;
         }
+
+        // Update history for every pixel
+        history[index][0] = r;
+        history[index][1] = g;
+        history[index][2] = b;
+        history[index][3] = a;
     }
 
     // qoi-padding part
